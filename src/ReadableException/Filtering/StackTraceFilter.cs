@@ -17,7 +17,7 @@ public class StackTraceFilter
         if (exceptionInfo == null)
             return;
 
-        foreach (var frame in exceptionInfo.StackTrace)
+        foreach (StackTraceFrame frame in exceptionInfo.StackTrace)
         {
             ApplyFilterRules(frame);
             ApplyHighlightRules(frame);
@@ -36,7 +36,7 @@ public class StackTraceFilter
 
         if (_configuration.FilterFrameworkCalls)
         {
-            foreach (var filterPrefix in _configuration.FilteredNamespaces)
+            foreach (string filterPrefix in _configuration.FilteredNamespaces)
             {
                 if (frame.Namespace.StartsWith(filterPrefix, StringComparison.OrdinalIgnoreCase))
                 {
@@ -46,7 +46,7 @@ public class StackTraceFilter
             }
         }
 
-        foreach (var filterClass in _configuration.FilteredClassNames)
+        foreach (string filterClass in _configuration.FilteredClassNames)
         {
             if (string.Equals(frame.ClassName, filterClass, StringComparison.OrdinalIgnoreCase))
             {
@@ -64,7 +64,7 @@ public class StackTraceFilter
         if (string.IsNullOrEmpty(frame.Namespace))
             return;
 
-        foreach (var highlightPrefix in _configuration.HighlightedNamespaces)
+        foreach (string highlightPrefix in _configuration.HighlightedNamespaces)
         {
             if (frame.Namespace.StartsWith(highlightPrefix, StringComparison.OrdinalIgnoreCase))
             {
@@ -73,7 +73,7 @@ public class StackTraceFilter
             }
         }
 
-        foreach (var highlightClass in _configuration.HighlightedClassNames)
+        foreach (string highlightClass in _configuration.HighlightedClassNames)
         {
             if (string.Equals(frame.ClassName, highlightClass, StringComparison.OrdinalIgnoreCase))
             {
@@ -84,7 +84,7 @@ public class StackTraceFilter
 
         if (_configuration.HighlightApplicationCode && !frame.IsFiltered)
         {
-            var isFrameworkCode = _configuration.FilteredNamespaces.Any(prefix =>
+            bool isFrameworkCode = _configuration.FilteredNamespaces.Any(prefix =>
                 frame.Namespace.StartsWith(prefix, StringComparison.OrdinalIgnoreCase));
             
             if (!isFrameworkCode)

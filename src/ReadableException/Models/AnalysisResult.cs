@@ -11,20 +11,20 @@ public class AnalysisResult
 
     public string ToFormattedString()
     {
-        var sb = new System.Text.StringBuilder();
+        System.Text.StringBuilder sb = new System.Text.StringBuilder();
         
         if (RootException != null)
         {
             sb.AppendLine($"Root Cause: {RootException.ExceptionType}: {RootException.Message}");
             sb.AppendLine();
             
-            var visibleFrames = RootException.GetVisibleFrames();
+            List<StackTraceFrame> visibleFrames = RootException.GetVisibleFrames();
             if (visibleFrames.Any())
             {
                 sb.AppendLine("Key Stack Frames:");
-                foreach (var frame in visibleFrames)
+                foreach (StackTraceFrame frame in visibleFrames)
                 {
-                    var marker = frame.IsHighlighted ? " [!]" : "";
+                    string marker = frame.IsHighlighted ? " [!]" : "";
                     sb.AppendLine($"  at {frame.GetFullMethodName()}{marker}");
                     if (!string.IsNullOrEmpty(frame.FileName) && frame.LineNumber.HasValue)
                     {

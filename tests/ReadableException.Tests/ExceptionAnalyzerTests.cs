@@ -1,99 +1,100 @@
+using NUnit.Framework;
 using ReadableException.Configuration;
-using Xunit;
 
 namespace ReadableException.Tests;
 
+[TestFixture]
 public class ExceptionAnalyzerTests
 {
-    [Fact]
+    [Test]
     public void Analyze_ValidException_ReturnsAnalysisResult()
     {
-        var analyzer = new ExceptionAnalyzer();
-        var exceptionText = @"System.InvalidOperationException: Test exception
+        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        string exceptionText = @"System.InvalidOperationException: Test exception
    at MyApp.Service.ProcessData() in C:\Projects\Service.cs:line 42
    at System.Threading.Tasks.Task.Execute()";
 
-        var result = analyzer.Analyze(exceptionText);
+        ReadableException.Models.AnalysisResult? result = analyzer.Analyze(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.NotNull(result.RootException);
-        Assert.Equal("System.InvalidOperationException", result.RootException.ExceptionType);
-        Assert.Single(result.ExceptionChain);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.RootException, Is.Not.Null);
+        Assert.That(result.RootException!.ExceptionType, Is.EqualTo("System.InvalidOperationException"));
+        Assert.That(result.ExceptionChain.Count, Is.EqualTo(1));
     }
 
-    [Fact]
+    [Test]
     public void Analyze_EmptyString_ReturnsNull()
     {
-        var analyzer = new ExceptionAnalyzer();
+        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
 
-        var result = analyzer.Analyze("");
+        ReadableException.Models.AnalysisResult? result = analyzer.Analyze("");
 
-        Assert.Null(result);
+        Assert.That(result, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Analyze_WithConfiguration_AppliesFilters()
     {
-        var config = new ConfigurationBuilder()
+        AnalyzerConfiguration config = new ConfigurationBuilder()
             .FilterNamespace("System.")
             .HighlightNamespace("MyApp.")
             .Build();
-        var analyzer = new ExceptionAnalyzer(config);
+        ExceptionAnalyzer analyzer = new ExceptionAnalyzer(config);
         
-        var exceptionText = @"System.Exception: Test
+        string exceptionText = @"System.Exception: Test
    at System.Collections.List.Add()
    at MyApp.Service.Process()";
 
-        var result = analyzer.Analyze(exceptionText);
+        ReadableException.Models.AnalysisResult? result = analyzer.Analyze(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.True(result.FilteredFrames > 0);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.FilteredFrames, Is.GreaterThan(0));
     }
 
-    [Fact]
+    [Test]
     public void Analyze_CalculatesStatistics_Correctly()
     {
-        var analyzer = new ExceptionAnalyzer();
-        var exceptionText = @"System.Exception: Test
+        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        string exceptionText = @"System.Exception: Test
    at MyApp.Service.Method1()
    at MyApp.Service.Method2()
    at System.Threading.Tasks.Task.Run()";
 
-        var result = analyzer.Analyze(exceptionText);
+        ReadableException.Models.AnalysisResult? result = analyzer.Analyze(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.Equal(3, result.TotalFrames);
-        Assert.True(result.VisibleFrames <= result.TotalFrames);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.TotalFrames, Is.EqualTo(3));
+        Assert.That(result.VisibleFrames, Is.LessThanOrEqualTo(result.TotalFrames));
     }
 
-    [Fact]
+    [Test]
     public void Analyze_GeneratesSummary_Correctly()
     {
-        var analyzer = new ExceptionAnalyzer();
-        var exceptionText = @"System.InvalidOperationException: Operation failed
+        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        string exceptionText = @"System.InvalidOperationException: Operation failed
    at MyApp.Service.ProcessData()";
 
-        var result = analyzer.Analyze(exceptionText);
+        ReadableException.Models.AnalysisResult? result = analyzer.Analyze(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.NotEmpty(result.Summary);
-        Assert.Contains("InvalidOperationException", result.Summary);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.Summary, Is.Not.Empty);
+        Assert.That(result.Summary, Does.Contain("InvalidOperationException"));
     }
 
-    [Fact]
+    [Test]
     public void ToFormattedString_ProducesReadableOutput()
     {
-        var analyzer = new ExceptionAnalyzer();
-        var exceptionText = @"System.InvalidOperationException: Test exception
+        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        string exceptionText = @"System.InvalidOperationException: Test exception
    at MyApp.Service.ProcessData()
    at MyApp.Controller.HandleRequest()";
 
-        var result = analyzer.Analyze(exceptionText);
+        ReadableException.Models.AnalysisResult? result = analyzer.Analyze(exceptionText);
 
-        Assert.NotNull(result);
-        var formatted = result.ToFormattedString();
-        Assert.NotEmpty(formatted);
-        Assert.Contains("Root Cause:", formatted);
-        Assert.Contains("InvalidOperationException", formatted);
+        Assert.That(result, Is.Not.Null);
+        string formatted = result!.ToFormattedString();
+        Assert.That(formatted, Is.Not.Empty);
+        Assert.That(formatted, Does.Contain("Root Cause:"));
+        Assert.That(formatted, Does.Contain("InvalidOperationException"));
     }
 }

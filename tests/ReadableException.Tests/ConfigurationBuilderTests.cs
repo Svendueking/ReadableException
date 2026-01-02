@@ -1,51 +1,52 @@
+using NUnit.Framework;
 using ReadableException.Configuration;
-using Xunit;
 
 namespace ReadableException.Tests;
 
+[TestFixture]
 public class ConfigurationBuilderTests
 {
-    [Fact]
+    [Test]
     public void Build_CreatesConfiguration()
     {
-        var config = new ConfigurationBuilder().Build();
+        AnalyzerConfiguration config = new ConfigurationBuilder().Build();
 
-        Assert.NotNull(config);
+        Assert.That(config, Is.Not.Null);
     }
 
-    [Fact]
+    [Test]
     public void FilterNamespace_AddsToFilteredNamespaces()
     {
-        var config = new ConfigurationBuilder()
+        AnalyzerConfiguration config = new ConfigurationBuilder()
             .FilterNamespace("MyCustom.Framework.")
             .Build();
 
-        Assert.Contains("MyCustom.Framework.", config.FilteredNamespaces);
+        Assert.That(config.FilteredNamespaces, Does.Contain("MyCustom.Framework."));
     }
 
-    [Fact]
+    [Test]
     public void HighlightNamespace_AddsToHighlightedNamespaces()
     {
-        var config = new ConfigurationBuilder()
+        AnalyzerConfiguration config = new ConfigurationBuilder()
             .HighlightNamespace("MyApp.Core.")
             .Build();
 
-        Assert.Contains("MyApp.Core.", config.HighlightedNamespaces);
+        Assert.That(config.HighlightedNamespaces, Does.Contain("MyApp.Core."));
     }
 
-    [Fact]
+    [Test]
     public void FluentAPI_ChainsMultipleOperations()
     {
-        var config = new ConfigurationBuilder()
+        AnalyzerConfiguration config = new ConfigurationBuilder()
             .FilterNamespace("System.")
             .HighlightNamespace("MyApp.")
             .WithMaxStackFrames(100)
             .WithShowFileInfo(false)
             .Build();
 
-        Assert.Contains("System.", config.FilteredNamespaces);
-        Assert.Contains("MyApp.", config.HighlightedNamespaces);
-        Assert.Equal(100, config.MaxStackFrames);
-        Assert.False(config.ShowFileInfo);
+        Assert.That(config.FilteredNamespaces, Does.Contain("System."));
+        Assert.That(config.HighlightedNamespaces, Does.Contain("MyApp."));
+        Assert.That(config.MaxStackFrames, Is.EqualTo(100));
+        Assert.That(config.ShowFileInfo, Is.False);
     }
 }

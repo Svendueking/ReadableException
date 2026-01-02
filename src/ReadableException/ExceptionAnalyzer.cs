@@ -27,13 +27,13 @@ public class ExceptionAnalyzer
         if (string.IsNullOrWhiteSpace(exceptionText))
             return null;
 
-        var exceptionInfo = _parser.Parse(exceptionText);
+        ExceptionInfo? exceptionInfo = _parser.Parse(exceptionText);
         if (exceptionInfo == null)
             return null;
 
         _filter.ApplyFilters(exceptionInfo);
 
-        var result = new AnalysisResult
+        AnalysisResult result = new AnalysisResult
         {
             RootException = FindRootException(exceptionInfo),
             ExceptionChain = BuildExceptionChain(exceptionInfo)
@@ -47,13 +47,13 @@ public class ExceptionAnalyzer
 
     public AnalysisResult? AnalyzeFromLog(string logEntry)
     {
-        var exceptionText = ExtractExceptionFromLog(logEntry);
+        string exceptionText = ExtractExceptionFromLog(logEntry);
         return Analyze(exceptionText);
     }
 
     private ExceptionInfo FindRootException(ExceptionInfo exception)
     {
-        var current = exception;
+        ExceptionInfo current = exception;
         while (current.InnerException != null)
         {
             current = current.InnerException;
@@ -63,8 +63,8 @@ public class ExceptionAnalyzer
 
     private List<ExceptionInfo> BuildExceptionChain(ExceptionInfo exception)
     {
-        var chain = new List<ExceptionInfo>();
-        var current = exception;
+        List<ExceptionInfo> chain = new List<ExceptionInfo>();
+        ExceptionInfo? current = exception;
         
         while (current != null)
         {
@@ -77,10 +77,10 @@ public class ExceptionAnalyzer
 
     private void CalculateStatistics(AnalysisResult result)
     {
-        var totalFrames = 0;
-        var visibleFrames = 0;
+        int totalFrames = 0;
+        int visibleFrames = 0;
         
-        foreach (var exception in result.ExceptionChain)
+        foreach (ExceptionInfo exception in result.ExceptionChain)
         {
             totalFrames += exception.StackTrace.Count;
             visibleFrames += exception.GetVisibleFrames().Count;
@@ -99,12 +99,12 @@ public class ExceptionAnalyzer
             return;
         }
 
-        var highlightedFrames = result.RootException.GetHighlightedFrames();
-        var summary = $"{result.RootException.ExceptionType}: {result.RootException.Message}";
+        List<StackTraceFrame> highlightedFrames = result.RootException.GetHighlightedFrames();
+        string summary = $"{result.RootException.ExceptionType}: {result.RootException.Message}";
         
         if (highlightedFrames.Any())
         {
-            var firstHighlighted = highlightedFrames.First();
+            StackTraceFrame firstHighlighted = highlightedFrames.First();
             summary += $" at {firstHighlighted.GetFullMethodName()}";
         }
         
@@ -113,11 +113,11 @@ public class ExceptionAnalyzer
 
     private string ExtractExceptionFromLog(string logEntry)
     {
-        var lines = logEntry.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
-        var exceptionLines = new List<string>();
-        var inException = false;
+        string[] lines = logEntry.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
+        List<string> exceptionLines = new List<string>();
+        bool inException = false;
 
-        foreach (var line in lines)
+        foreach (string line in lines)
         {
             if (line.Contains("Exception") || line.Trim().StartsWith("at "))
             {

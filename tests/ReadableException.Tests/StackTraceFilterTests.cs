@@ -1,23 +1,24 @@
+using NUnit.Framework;
 using ReadableException.Configuration;
 using ReadableException.Filtering;
 using ReadableException.Models;
-using Xunit;
 
 namespace ReadableException.Tests;
 
+[TestFixture]
 public class StackTraceFilterTests
 {
-    [Fact]
+    [Test]
     public void ApplyFilters_FilterFrameworkNamespaces_FiltersCorrectly()
     {
-        var config = new AnalyzerConfiguration
+        AnalyzerConfiguration config = new AnalyzerConfiguration
         {
             FilteredNamespaces = new List<string> { "System." },
             FilterFrameworkCalls = true
         };
-        var filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new StackTraceFilter(config);
 
-        var exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new ExceptionInfo
         {
             StackTrace = new List<StackTraceFrame>
             {
@@ -28,21 +29,21 @@ public class StackTraceFilterTests
 
         filter.ApplyFilters(exceptionInfo);
 
-        Assert.True(exceptionInfo.StackTrace[0].IsFiltered);
-        Assert.False(exceptionInfo.StackTrace[1].IsFiltered);
+        Assert.That(exceptionInfo.StackTrace[0].IsFiltered, Is.True);
+        Assert.That(exceptionInfo.StackTrace[1].IsFiltered, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void ApplyFilters_HighlightApplicationCode_HighlightsNonFramework()
     {
-        var config = new AnalyzerConfiguration
+        AnalyzerConfiguration config = new AnalyzerConfiguration
         {
             FilteredNamespaces = new List<string> { "System." },
             HighlightApplicationCode = true
         };
-        var filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new StackTraceFilter(config);
 
-        var exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new ExceptionInfo
         {
             StackTrace = new List<StackTraceFrame>
             {
@@ -52,20 +53,20 @@ public class StackTraceFilterTests
 
         filter.ApplyFilters(exceptionInfo);
 
-        Assert.True(exceptionInfo.StackTrace[0].IsHighlighted);
+        Assert.That(exceptionInfo.StackTrace[0].IsHighlighted, Is.True);
     }
 
-    [Fact]
+    [Test]
     public void ApplyFilters_FilteredFrames_NotHighlighted()
     {
-        var config = new AnalyzerConfiguration
+        AnalyzerConfiguration config = new AnalyzerConfiguration
         {
             FilteredNamespaces = new List<string> { "System." },
             HighlightApplicationCode = true
         };
-        var filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new StackTraceFilter(config);
 
-        var exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new ExceptionInfo
         {
             StackTrace = new List<StackTraceFrame>
             {
@@ -75,20 +76,20 @@ public class StackTraceFilterTests
 
         filter.ApplyFilters(exceptionInfo);
 
-        Assert.True(exceptionInfo.StackTrace[0].IsFiltered);
-        Assert.False(exceptionInfo.StackTrace[0].IsHighlighted);
+        Assert.That(exceptionInfo.StackTrace[0].IsFiltered, Is.True);
+        Assert.That(exceptionInfo.StackTrace[0].IsHighlighted, Is.False);
     }
 
-    [Fact]
+    [Test]
     public void ApplyFilters_CustomHighlightNamespace_HighlightsCorrectly()
     {
-        var config = new AnalyzerConfiguration
+        AnalyzerConfiguration config = new AnalyzerConfiguration
         {
             HighlightedNamespaces = new List<string> { "MyApp.Core" }
         };
-        var filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new StackTraceFilter(config);
 
-        var exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new ExceptionInfo
         {
             StackTrace = new List<StackTraceFrame>
             {
@@ -98,6 +99,6 @@ public class StackTraceFilterTests
 
         filter.ApplyFilters(exceptionInfo);
 
-        Assert.True(exceptionInfo.StackTrace[0].IsHighlighted);
+        Assert.That(exceptionInfo.StackTrace[0].IsHighlighted, Is.True);
     }
 }

@@ -1,94 +1,96 @@
+using NUnit.Framework;
 using ReadableException.Parsing;
-using Xunit;
 
 namespace ReadableException.Tests;
 
+[TestFixture]
 public class ExceptionParserTests
 {
-    private readonly ExceptionParser _parser;
+    private ExceptionParser _parser = null!;
 
-    public ExceptionParserTests()
+    [SetUp]
+    public void Setup()
     {
         _parser = new ExceptionParser();
     }
 
-    [Fact]
+    [Test]
     public void Parse_ValidException_ReturnsExceptionInfo()
     {
-        var exceptionText = @"System.InvalidOperationException: Operation is not valid
+        string exceptionText = @"System.InvalidOperationException: Operation is not valid
    at MyApp.Service.ProcessData() in C:\Projects\MyApp\Service.cs:line 42
    at MyApp.Controller.HandleRequest()";
 
-        var result = _parser.Parse(exceptionText);
+        ReadableException.Models.ExceptionInfo? result = _parser.Parse(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.Equal("System.InvalidOperationException", result.ExceptionType);
-        Assert.Equal("Operation is not valid", result.Message);
-        Assert.Equal(2, result.StackTrace.Count);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.ExceptionType, Is.EqualTo("System.InvalidOperationException"));
+        Assert.That(result.Message, Is.EqualTo("Operation is not valid"));
+        Assert.That(result.StackTrace.Count, Is.EqualTo(2));
     }
 
-    [Fact]
+    [Test]
     public void Parse_EmptyString_ReturnsNull()
     {
-        var result = _parser.Parse("");
+        ReadableException.Models.ExceptionInfo? result = _parser.Parse("");
 
-        Assert.Null(result);
+        Assert.That(result, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Parse_NullString_ReturnsNull()
     {
-        var result = _parser.Parse(null!);
+        ReadableException.Models.ExceptionInfo? result = _parser.Parse(null!);
 
-        Assert.Null(result);
+        Assert.That(result, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Parse_StackFrameWithFileInfo_ParsesCorrectly()
     {
-        var exceptionText = @"System.Exception: Test
+        string exceptionText = @"System.Exception: Test
    at MyApp.Service.Method() in C:\Path\File.cs:line 123";
 
-        var result = _parser.Parse(exceptionText);
+        ReadableException.Models.ExceptionInfo? result = _parser.Parse(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.Single(result.StackTrace);
-        var frame = result.StackTrace[0];
-        Assert.Equal("Method", frame.MethodName);
-        Assert.Equal("Service", frame.ClassName);
-        Assert.Equal("MyApp", frame.Namespace);
-        Assert.Equal(@"C:\Path\File.cs", frame.FileName);
-        Assert.Equal(123, frame.LineNumber);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.StackTrace.Count, Is.EqualTo(1));
+        ReadableException.Models.StackTraceFrame frame = result.StackTrace[0];
+        Assert.That(frame.MethodName, Is.EqualTo("Method"));
+        Assert.That(frame.ClassName, Is.EqualTo("Service"));
+        Assert.That(frame.Namespace, Is.EqualTo("MyApp"));
+        Assert.That(frame.FileName, Is.EqualTo(@"C:\Path\File.cs"));
+        Assert.That(frame.LineNumber, Is.EqualTo(123));
     }
 
-    [Fact]
+    [Test]
     public void Parse_StackFrameWithoutFileInfo_ParsesCorrectly()
     {
-        var exceptionText = @"System.Exception: Test
+        string exceptionText = @"System.Exception: Test
    at System.Collections.Generic.List`1.Add(T item)";
 
-        var result = _parser.Parse(exceptionText);
+        ReadableException.Models.ExceptionInfo? result = _parser.Parse(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.Single(result.StackTrace);
-        var frame = result.StackTrace[0];
-        Assert.Null(frame.FileName);
-        Assert.Null(frame.LineNumber);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.StackTrace.Count, Is.EqualTo(1));
+        ReadableException.Models.StackTraceFrame frame = result.StackTrace[0];
+        Assert.That(frame.FileName, Is.Null);
+        Assert.That(frame.LineNumber, Is.Null);
     }
 
-    [Fact]
+    [Test]
     public void Parse_WithInnerException_ParsesInnerException()
     {
-        var exceptionText = @"System.InvalidOperationException: Outer exception
+        string exceptionText = @"System.InvalidOperationException: Outer exception
    at OuterMethod()
 Inner Exception: System.ArgumentException: Inner exception
    at InnerMethod()";
 
-        var result = _parser.Parse(exceptionText);
+        ReadableException.Models.ExceptionInfo? result = _parser.Parse(exceptionText);
 
-        Assert.NotNull(result);
-        Assert.Equal("System.InvalidOperationException", result.ExceptionType);
-        Assert.NotNull(result.InnerException);
-        Assert.Equal("System.ArgumentException", result.InnerException.ExceptionType);
+        Assert.That(result, Is.Not.Null);
+        Assert.That(result!.ExceptionType, Is.EqualTo("System.InvalidOperationException"));
+        Assert.That(result.InnerException, Is.Not.Null);
+        Assert.That(result.InnerException!.ExceptionType, Is.EqualTo("System.ArgumentException"));
     }
 }
