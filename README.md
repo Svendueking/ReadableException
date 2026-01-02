@@ -245,8 +245,8 @@ Statistics: 2 visible / 5 total frames (3 filtered)
 
 ## Requirements
 
-- .NET 8.0 or higher
-- Compatible with .NET Framework, .NET Core, and .NET 5+
+- .NET 10.0
+- Compatible with .NET 6+, .NET Core, and .NET Framework (via compatibility)
 
 ## Contributing
 

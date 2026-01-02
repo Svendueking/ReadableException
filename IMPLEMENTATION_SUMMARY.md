@@ -88,8 +88,8 @@ Successfully implemented a complete .NET library (NuGet package) for parsing and
    - < 1ms typical analysis time
 
 6. **.NET Compatibility** ✓
-   - Target Framework: .NET 8.0
-   - Compatible with .NET Core, .NET 5+
+   - Target Framework: .NET 10.0
+   - Compatible with .NET 6+, .NET Core
    - No external dependencies beyond BCL
 
 7. **Documentation** ✓
@@ -168,11 +168,13 @@ var config = new ConfigurationBuilder()
 
 ## Test Results
 
-All 20 tests pass successfully:
+All 20 tests pass successfully with NUnit:
 - ✅ ExceptionParserTests (6/6 passed)
 - ✅ StackTraceFilterTests (4/4 passed)
 - ✅ ExceptionAnalyzerTests (6/6 passed)
 - ✅ ConfigurationBuilderTests (4/4 passed)
+
+Test Framework: NUnit 4.2.2 with NSubstitute 5.3.0
 
 ## Security
 
