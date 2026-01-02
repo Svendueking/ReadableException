@@ -16,7 +16,7 @@ public class StackTraceFrame
         if (string.IsNullOrEmpty(ClassName) || string.IsNullOrEmpty(MethodName))
             return FullText;
         
-        var ns = string.IsNullOrEmpty(Namespace) ? "" : $"{Namespace}.";
+        string ns = string.IsNullOrEmpty(Namespace) ? "" : $"{Namespace}.";
         return $"{ns}{ClassName}.{MethodName}";
     }
 }
