@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
+    <PackageId>ReadableException</PackageId>
+    <Version>1.0.0</Version>
+    <Authors>Group-IT</Authors>
+    <Company>Group-IT</Company>
+    <Description>A library for parsing and analyzing exception stacktraces to provide readable, filtered, and structured exception information.</Description>
+    <PackageTags>exception;stacktrace;logging;analysis</PackageTags>
+    <PackageProjectUrl>https://github.com/Svendueking/ReadableException</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/Svendueking/ReadableException</RepositoryUrl>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+  </PropertyGroup>
+
+</Project>
