@@ -1,4 +1,4 @@
-"# ReadableException
+# ReadableException
 
 A .NET library for parsing and analyzing exception stacktraces to provide readable, filtered, and structured exception information. This library helps developers focus on relevant exception details by filtering out framework noise and highlighting application-specific code.
 
@@ -261,5 +261,4 @@ MIT License
 
 ## Support
 
-For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/Svendueking/ReadableException).
-" 
+For issues, questions, or contributions, please visit the [GitHub repository](https://github.com/Svendueking/ReadableException). 
