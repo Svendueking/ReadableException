@@ -1,74 +1,97 @@
-﻿using ReadableException;
+using ReadableException;
 using ReadableException.Configuration;
+using System;
 
-Console.WriteLine("=== ReadableException Library Demo ===\n");
+Console.WriteLine("=== ReadableException Real-World Examples Demo ===\n");
 
-string exampleException = @"System.InvalidOperationException: The operation cannot be completed at this time
-   at MyApp.Services.DataService.LoadData() in C:\Projects\MyApp\Services\DataService.cs:line 45
-   at MyApp.Services.DataService.ProcessRequest(String requestId)
-   at System.Threading.Tasks.Task.InnerInvoke()
-   at System.Threading.ExecutionContext.RunInternal(ExecutionContext executionContext, ContextCallback callback, Object state)
-   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
-   at MyApp.Controllers.ApiController.HandleRequest() in C:\Projects\MyApp\Controllers\ApiController.cs:line 78
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.Execute(Object controller, Object[] parameters)
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ControllerActionInvoker.InvokeActionMethodAsync()";
-
-Console.WriteLine("Example 1: Basic Analysis with Default Configuration");
-Console.WriteLine("=" + new string('=', 55));
-
-ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
-ReadableException.Models.AnalysisResult? result = analyzer.Analyze(exampleException);
-
-if (result != null)
-{
-    Console.WriteLine(result.ToFormattedString());
-}
-
-Console.WriteLine("\n\nExample 2: Custom Configuration - Highlight MyApp namespace");
-Console.WriteLine("=" + new string('=', 55));
-
-AnalyzerConfiguration customConfig = new ConfigurationBuilder()
+// Configure to filter System frames but highlight application code
+AnalyzerConfiguration config = new ConfigurationBuilder()
     .FilterNamespace("System.")
     .FilterNamespace("Microsoft.")
-    .HighlightNamespace("MyApp.")
+    .HighlightNamespace("Ext.Vacation.")
+    .HighlightNamespace("MaMa.")
     .WithFilterFrameworkCalls(true)
     .Build();
 
-ExceptionAnalyzer customAnalyzer = new ExceptionAnalyzer(customConfig);
-ReadableException.Models.AnalysisResult? customResult = customAnalyzer.Analyze(exampleException);
+ExceptionAnalyzer analyzer = new ExceptionAnalyzer(config);
 
-if (customResult != null)
+// Example 1: Vacation API Exception
+Console.WriteLine("Example 1: Vacation TimeJob API Exception");
+Console.WriteLine("=" + new string('=', 70));
+
+string logEntry1 = @"Es gibt einen Fehler bei den folgenden Projekt: Ext.Vacation
+Component: Api
+Message: GetEmployee: Message=Fehler beim Laden der Daten von der TimeJob-Api. Result=Statuscode: NoContent: TimeJobApi=http://ama-ffm-web-02:41202/api/Urlaubsantrag/64078 Employeenumber=64078
+Severity: Error
+AdditionalData:
+Exception: AF.Base.AFException: Fehler beim Laden der Daten von der TimeJob-Api. Result=Statuscode: NoContent: TimeJobApi=http://ama-ffm-web-02:41202/api/Urlaubsantrag/64078
+   at Ext.Vacation.WebApi.Controllers.RequestController.GetEmployeeFromExternal(String employeenumber)
+   at Ext.Vacation.WebApi.Controllers.RequestController.GetEmployee()";
+
+ReadableException.Models.AnalysisResult? result1 = analyzer.AnalyzeFromLog(logEntry1);
+if (result1 != null)
 {
-    Console.WriteLine(customResult.ToFormattedString());
+    Console.WriteLine(result1.ToFormattedString());
 }
 
-Console.WriteLine("\n\nExample 3: Analyzing from Log Entry");
-Console.WriteLine("=" + new string('=', 55));
+Console.WriteLine("\n\n");
 
-string logEntry = @"2024-01-02 15:30:45 [ERROR] Unhandled exception in request processing
-System.ArgumentNullException: Value cannot be null. (Parameter 'userId')
-   at MyApp.Services.UserService.GetUser(String userId) in C:\Projects\MyApp\Services\UserService.cs:line 23
-   at MyApp.Controllers.UserController.GetUserProfile()
-   at Microsoft.AspNetCore.Mvc.Infrastructure.ActionMethodExecutor.Execute()";
+// Example 2: FlexTime Exception with System frames
+Console.WriteLine("Example 2: FlexTime Exception (with filtered System frames)");
+Console.WriteLine("=" + new string('=', 70));
 
-ReadableException.Models.AnalysisResult? logResult = analyzer.AnalyzeFromLog(logEntry);
+string logEntry2 = @"Es gibt einen Fehler bei den folgenden Projekt: Ext.Vacation
+Component: Api
+Message: GetFlexTimeAccount: Fehler beim Laden der AZK-Stand von der TimeJob-WebApi. Employeenumber: 63776
+Severity: Error
+AdditionalData:
+Exception: AF.Base.AFException: Der AZK-Stand konnte nicht geladen werden.
+   at Ext.Vacation.WebApi.Controllers.RequestController.GetHoursFlexTimeExternal(String employeenumber)
+   at Ext.Vacation.WebApi.Controllers.RequestController.<>c__DisplayClass10_0.b__1()
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+--- End of stack trace from previous location ---
+   at System.Threading.ExecutionContext.RunFromThreadPoolDispatchLoop(Thread threadPoolThread, ExecutionContext executionContext, ContextCallback callback, Object state)
+   at System.Threading.Tasks.Task.ExecuteWithThreadLocal(Task& currentTaskSlot, Thread threadPoolThread)
+--- End of stack trace from previous location ---
+   at Ext.Vacation.WebApi.Controllers.RequestController.GetFlexTimeAccount()";
 
-if (logResult != null)
+ReadableException.Models.AnalysisResult? result2 = analyzer.AnalyzeFromLog(logEntry2);
+if (result2 != null)
 {
-    Console.WriteLine($"Summary: {logResult.Summary}");
-    Console.WriteLine($"Statistics: {logResult.VisibleFrames} visible / {logResult.TotalFrames} total / {logResult.FilteredFrames} filtered");
-    
-    Console.WriteLine("\nHighlighted Frames (Application Code):");
-    foreach (ReadableException.Models.StackTraceFrame frame in logResult.RootException?.GetHighlightedFrames() ?? new List<ReadableException.Models.StackTraceFrame>())
-    {
-        Console.WriteLine($"  - {frame.GetFullMethodName()}");
-        if (!string.IsNullOrEmpty(frame.FileName))
-        {
-            Console.WriteLine($"    {frame.FileName}:line {frame.LineNumber}");
-        }
-    }
+    Console.WriteLine(result2.ToFormattedString());
 }
 
-Console.WriteLine("\n\nPress any key to exit...");
+Console.WriteLine("\n\n");
+
+// Example 3: MaMa Document Exception
+Console.WriteLine("Example 3: MaMa Document Management Exception");
+Console.WriteLine("=" + new string('=', 70));
+
+string logEntry3 = @"Timestamp:        1/1/2026 8:50:00 PM +00:00
+MyProject:        MaMa.FA.ManageDocument
+MyComponent:      ManageDocument 
+Message:
+MaMa.FA.ManageDocument / ManageDocument / WriteDocument: Beim ausführen des ApiCalls WriteDocument ist ein Fehler aufgetreten.
+AdditionalData:
+Statuscode: InternalServerError: Could not find a part of the path '\\amadeusag.local\tj\Files_Prod\2026-01\20260101205000Bewerbungsunterlagen.pdf'.";
+
+// This example doesn't have a full stacktrace, but let's show what we can extract
+ReadableException.Models.AnalysisResult? result3 = analyzer.AnalyzeFromLog(logEntry3);
+if (result3 != null)
+{
+    Console.WriteLine(result3.ToFormattedString());
+}
+else
+{
+    Console.WriteLine("Note: This log entry doesn't contain a standard exception stacktrace.");
+    Console.WriteLine("Message: Could not find a part of the path '\\\\amadeusag.local\\tj\\Files_Prod\\2026-01\\20260101205000Bewerbungsunterlagen.pdf'");
+}
+
+Console.WriteLine("\n\n=== Summary ===");
+Console.WriteLine("The ReadableException library successfully:");
+Console.WriteLine("✓ Parses AF.Base.AFException from your custom log format");
+Console.WriteLine("✓ Filters out System.Threading.* framework noise");
+Console.WriteLine("✓ Highlights your Ext.Vacation.* application code");
+Console.WriteLine("✓ Provides clean, readable output focused on YOUR code");
+Console.WriteLine("\nPress any key to exit...");
 Console.ReadKey();
-

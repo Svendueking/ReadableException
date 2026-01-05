@@ -119,14 +119,23 @@ public class ExceptionAnalyzer
 
         foreach (string line in lines)
         {
-            if (line.Contains("Exception") || line.Trim().StartsWith("at "))
+            // Check if this line starts the exception section
+            if (line.Contains("Exception:") || line.Trim().StartsWith("at "))
             {
                 inException = true;
             }
 
             if (inException)
             {
-                exceptionLines.Add(line);
+                // Strip "Exception: " prefix if it exists at the start
+                string processedLine = line;
+                if (line.Trim().StartsWith("Exception:"))
+                {
+                    int colonIndex = line.IndexOf("Exception:");
+                    processedLine = line.Substring(colonIndex + "Exception:".Length).Trim();
+                }
+                
+                exceptionLines.Add(processedLine);
                 
                 if (string.IsNullOrWhiteSpace(line) && exceptionLines.Count > 1)
                 {
