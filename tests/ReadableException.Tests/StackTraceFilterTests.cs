@@ -8,22 +8,22 @@ namespace ReadableException.Tests;
 [TestFixture]
 public class StackTraceFilterTests
 {
-    [Test]
-    public void ApplyFilters_FilterFrameworkNamespaces_FiltersCorrectly()
+[Test]
+    public void ApplyFiltersFilterFrameworkNamespacesFiltersCorrectly()
     {
-        AnalyzerConfiguration config = new AnalyzerConfiguration
+AnalyzerConfiguration config = new()
         {
-            FilteredNamespaces = new List<string> { "System." },
+            FilteredNamespaces = new() { "System." },
             FilterFrameworkCalls = true
         };
-        StackTraceFilter filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new(config);
 
-        ExceptionInfo exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new()
         {
-            StackTrace = new List<StackTraceFrame>
+            StackTrace = new()
             {
-                new StackTraceFrame { Namespace = "System.Collections", ClassName = "List", MethodName = "Add" },
-                new StackTraceFrame { Namespace = "MyApp", ClassName = "Service", MethodName = "Process" }
+                new() { Namespace = "System.Collections", ClassName = "List", MethodName = "Add" },
+                new() { Namespace = "MyApp", ClassName = "Service", MethodName = "Process" }
             }
         };
 
@@ -33,21 +33,21 @@ public class StackTraceFilterTests
         Assert.That(exceptionInfo.StackTrace[1].IsFiltered, Is.False);
     }
 
-    [Test]
-    public void ApplyFilters_HighlightApplicationCode_HighlightsNonFramework()
+[Test]
+    public void ApplyFiltersHighlightApplicationCodeHighlightsNonFramework()
     {
-        AnalyzerConfiguration config = new AnalyzerConfiguration
+        AnalyzerConfiguration config = new()
         {
-            FilteredNamespaces = new List<string> { "System." },
+            FilteredNamespaces = new() { "System." },
             HighlightApplicationCode = true
         };
-        StackTraceFilter filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new(config);
 
-        ExceptionInfo exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new()
         {
-            StackTrace = new List<StackTraceFrame>
+            StackTrace = new()
             {
-                new StackTraceFrame { Namespace = "MyApp", ClassName = "Service", MethodName = "Process" }
+                new() { Namespace = "MyApp", ClassName = "Service", MethodName = "Process" }
             }
         };
 
@@ -56,21 +56,21 @@ public class StackTraceFilterTests
         Assert.That(exceptionInfo.StackTrace[0].IsHighlighted, Is.True);
     }
 
-    [Test]
-    public void ApplyFilters_FilteredFrames_NotHighlighted()
+[Test]
+    public void ApplyFiltersFilteredFramesNotHighlighted()
     {
-        AnalyzerConfiguration config = new AnalyzerConfiguration
+        AnalyzerConfiguration config = new()
         {
-            FilteredNamespaces = new List<string> { "System." },
+            FilteredNamespaces = new() { "System." },
             HighlightApplicationCode = true
         };
-        StackTraceFilter filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new(config);
 
-        ExceptionInfo exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new()
         {
-            StackTrace = new List<StackTraceFrame>
+            StackTrace = new()
             {
-                new StackTraceFrame { Namespace = "System.Collections", ClassName = "List", MethodName = "Add" }
+                new() { Namespace = "System.Collections", ClassName = "List", MethodName = "Add" }
             }
         };
 
@@ -80,20 +80,20 @@ public class StackTraceFilterTests
         Assert.That(exceptionInfo.StackTrace[0].IsHighlighted, Is.False);
     }
 
-    [Test]
-    public void ApplyFilters_CustomHighlightNamespace_HighlightsCorrectly()
+[Test]
+    public void ApplyFiltersCustomHighlightNamespaceHighlightsCorrectly()
     {
-        AnalyzerConfiguration config = new AnalyzerConfiguration
+        AnalyzerConfiguration config = new()
         {
-            HighlightedNamespaces = new List<string> { "MyApp.Core" }
+            HighlightedNamespaces = new() { "MyApp.Core" }
         };
-        StackTraceFilter filter = new StackTraceFilter(config);
+        StackTraceFilter filter = new(config);
 
-        ExceptionInfo exceptionInfo = new ExceptionInfo
+        ExceptionInfo exceptionInfo = new()
         {
-            StackTrace = new List<StackTraceFrame>
+            StackTrace = new()
             {
-                new StackTraceFrame { Namespace = "MyApp.Core.Services", ClassName = "DataService", MethodName = "Load" }
+                new() { Namespace = "MyApp.Core.Services", ClassName = "DataService", MethodName = "Load" }
             }
         };
 

@@ -6,16 +6,16 @@ namespace ReadableException.Tests;
 [TestFixture]
 public class ConfigurationBuilderTests
 {
-    [Test]
-    public void Build_CreatesConfiguration()
+[Test]
+    public void BuildCreatesConfiguration()
     {
         AnalyzerConfiguration config = new ConfigurationBuilder().Build();
 
         Assert.That(config, Is.Not.Null);
     }
 
-    [Test]
-    public void FilterNamespace_AddsToFilteredNamespaces()
+[Test]
+    public void FilterNamespaceAddsToFilteredNamespaces()
     {
         AnalyzerConfiguration config = new ConfigurationBuilder()
             .FilterNamespace("MyCustom.Framework.")
@@ -24,8 +24,8 @@ public class ConfigurationBuilderTests
         Assert.That(config.FilteredNamespaces, Does.Contain("MyCustom.Framework."));
     }
 
-    [Test]
-    public void HighlightNamespace_AddsToHighlightedNamespaces()
+[Test]
+    public void HighlightNamespaceAddsToHighlightedNamespaces()
     {
         AnalyzerConfiguration config = new ConfigurationBuilder()
             .HighlightNamespace("MyApp.Core.")
@@ -34,8 +34,8 @@ public class ConfigurationBuilderTests
         Assert.That(config.HighlightedNamespaces, Does.Contain("MyApp.Core."));
     }
 
-    [Test]
-    public void FluentAPI_ChainsMultipleOperations()
+[Test]
+    public void FluentAPIChainsMultipleOperations()
     {
         AnalyzerConfiguration config = new ConfigurationBuilder()
             .FilterNamespace("System.")

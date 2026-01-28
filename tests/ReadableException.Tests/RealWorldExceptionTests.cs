@@ -7,24 +7,22 @@ namespace ReadableException.Tests;
 [TestFixture]
 public class RealWorldExceptionTests
 {
-    private ExceptionParser _parser = null!;
-    private ExceptionAnalyzer _analyzer = null!;
+private ExceptionAnalyzer _analyzer = null!;
 
     [SetUp]
     public void Setup()
     {
-        _parser = new ExceptionParser();
         _analyzer = new ExceptionAnalyzer();
     }
 
-    [Test]
-    public void Parse_VacationApiException_ParsesCorrectly()
+[Test]
+    public void ParseVacationApiExceptionParsesCorrectly()
     {
         string exceptionText = @"AF.Base.AFException: Fehler beim Laden der Daten von der TimeJob-Api. Result=Statuscode: NoContent: TimeJobApi=http://ama-ffm-web-02:41202/api/Urlaubsantrag/64078
    at Ext.Vacation.WebApi.Controllers.RequestController.GetEmployeeFromExternal(String employeenumber)
    at Ext.Vacation.WebApi.Controllers.RequestController.GetEmployee()";
 
-        ExceptionInfo? result = _parser.Parse(exceptionText);
+        ExceptionInfo? result = ExceptionParser.Parse(exceptionText);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.ExceptionType, Is.EqualTo("AF.Base.AFException"));
@@ -37,8 +35,8 @@ public class RealWorldExceptionTests
         Assert.That(firstFrame.MethodName, Is.EqualTo("GetEmployeeFromExternal"));
     }
 
-    [Test]
-    public void Parse_FlexTimeException_ParsesCorrectly()
+[Test]
+    public void ParseFlexTimeExceptionParsesCorrectly()
     {
         string exceptionText = @"AF.Base.AFException: Der AZK-Stand konnte nicht geladen werden.
    at Ext.Vacation.WebApi.Controllers.RequestController.GetHoursFlexTimeExternal(String employeenumber)
@@ -50,7 +48,7 @@ public class RealWorldExceptionTests
 --- End of stack trace from previous location ---
    at Ext.Vacation.WebApi.Controllers.RequestController.GetFlexTimeAccount()";
 
-        ExceptionInfo? result = _parser.Parse(exceptionText);
+        ExceptionInfo? result = ExceptionParser.Parse(exceptionText);
 
         Assert.That(result, Is.Not.Null);
         Assert.That(result!.ExceptionType, Is.EqualTo("AF.Base.AFException"));
@@ -62,8 +60,8 @@ public class RealWorldExceptionTests
         Assert.That(firstFrame.MethodName, Is.EqualTo("GetHoursFlexTimeExternal"));
     }
 
-    [Test]
-    public void Analyze_VacationApiException_FiltersAndHighlightsCorrectly()
+[Test]
+    public void AnalyzeVacationApiExceptionFiltersAndHighlightsCorrectly()
     {
         string exceptionText = @"AF.Base.AFException: Fehler beim Laden der Daten von der TimeJob-Api. Result=Statuscode: NoContent: TimeJobApi=http://ama-ffm-web-02:41202/api/Urlaubsantrag/64078
    at Ext.Vacation.WebApi.Controllers.RequestController.GetEmployeeFromExternal(String employeenumber)
@@ -80,8 +78,8 @@ public class RealWorldExceptionTests
         Assert.That(highlighted.Count, Is.GreaterThan(0));
     }
 
-    [Test]
-    public void Analyze_FlexTimeException_FiltersSystemFrames()
+[Test]
+    public void AnalyzeFlexTimeExceptionFiltersSystemFrames()
     {
         string exceptionText = @"AF.Base.AFException: Der AZK-Stand konnte nicht geladen werden.
    at Ext.Vacation.WebApi.Controllers.RequestController.GetHoursFlexTimeExternal(String employeenumber)
@@ -106,12 +104,12 @@ public class RealWorldExceptionTests
         Assert.That(visible.Count, Is.GreaterThan(0));
         
         // Check that Ext.Vacation frames are not filtered
-        bool hasExtVacationFrames = visible.Any(f => f.Namespace?.StartsWith("Ext.Vacation") == true);
+        bool hasExtVacationFrames = visible.Any(f => f.Namespace?.StartsWith("Ext.Vacation", StringComparison.Ordinal) == true);
         Assert.That(hasExtVacationFrames, Is.True);
     }
 
-    [Test]
-    public void Parse_ComplexLogEntry_ExtractsException()
+[Test]
+    public void ParseComplexLogEntryExtractsException()
     {
         string logEntry = @"Es gibt einen Fehler bei den folgenden Projekt: Ext.Vacation
 Component: Api
@@ -129,8 +127,8 @@ Exception: AF.Base.AFException: Fehler beim Laden der Daten von der TimeJob-Api.
         Assert.That(result.RootException!.ExceptionType, Is.EqualTo("AF.Base.AFException"));
     }
 
-    [Test]
-    public void ToFormattedString_VacationException_ProducesReadableOutput()
+[Test]
+    public void ToFormattedStringVacationExceptionProducesReadableOutput()
     {
         string exceptionText = @"AF.Base.AFException: Fehler beim Laden der Daten von der TimeJob-Api. Result=Statuscode: NoContent: TimeJobApi=http://ama-ffm-web-02:41202/api/Urlaubsantrag/64078
    at Ext.Vacation.WebApi.Controllers.RequestController.GetEmployeeFromExternal(String employeenumber)

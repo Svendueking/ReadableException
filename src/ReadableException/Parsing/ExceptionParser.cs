@@ -14,17 +14,19 @@ public class ExceptionParser
         @"^\s*at\s+(?<method>.+?)(?:\s+in\s+(?<file>.+?):line\s+(?<line>\d+))?$",
         RegexOptions.Compiled | RegexOptions.Multiline
     );
+    
+    private static readonly char[] LineSeparators = { '\r', '\n' };
 
-    public ExceptionInfo? Parse(string exceptionText)
+    public static ExceptionInfo? Parse(string exceptionText)
     {
         if (string.IsNullOrWhiteSpace(exceptionText))
             return null;
 
-        string[] lines = exceptionText.Split(new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+        string[] lines = exceptionText.Split(LineSeparators, StringSplitOptions.RemoveEmptyEntries);
         if (lines.Length == 0)
             return null;
 
-        ExceptionInfo exceptionInfo = new ExceptionInfo { RawText = exceptionText };
+        ExceptionInfo exceptionInfo = new() { RawText = exceptionText };
         
         string firstLine = lines[0].Trim();
         
@@ -56,7 +58,7 @@ public class ExceptionParser
                 StackTraceFrame frame = ParseStackFrame(line, frameMatch);
                 exceptionInfo.StackTrace.Add(frame);
             }
-            else if (line.Trim().StartsWith("---"))
+            else if (line.Trim().StartsWith("---", StringComparison.Ordinal))
             {
                 break;
             }
@@ -73,9 +75,9 @@ public class ExceptionParser
         return exceptionInfo;
     }
 
-    private StackTraceFrame ParseStackFrame(string fullText, Match match)
+    private static StackTraceFrame ParseStackFrame(string fullText, Match match)
     {
-        StackTraceFrame frame = new StackTraceFrame { FullText = fullText.Trim() };
+        StackTraceFrame frame = new() { FullText = fullText.Trim() };
         
         string methodPart = match.Groups["method"].Value;
         ParseMethodInfo(methodPart, frame);
@@ -93,7 +95,7 @@ public class ExceptionParser
         return frame;
     }
 
-    private void ParseMethodInfo(string methodPart, StackTraceFrame frame)
+    private static void ParseMethodInfo(string methodPart, StackTraceFrame frame)
     {
         int parenIndex = methodPart.IndexOf('(');
         if (parenIndex > 0)

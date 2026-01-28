@@ -10,6 +10,8 @@ public class ExceptionAnalyzer
     private readonly AnalyzerConfiguration _configuration;
     private readonly ExceptionParser _parser;
     private readonly StackTraceFilter _filter;
+    
+    private static readonly char[] LineSeparators = { '\r', '\n' };
 
     public ExceptionAnalyzer() : this(AnalyzerConfiguration.Default)
     {
@@ -27,13 +29,13 @@ public class ExceptionAnalyzer
         if (string.IsNullOrWhiteSpace(exceptionText))
             return null;
 
-        ExceptionInfo? exceptionInfo = _parser.Parse(exceptionText);
+        ExceptionInfo? exceptionInfo = ExceptionParser.Parse(exceptionText);
         if (exceptionInfo == null)
             return null;
 
         _filter.ApplyFilters(exceptionInfo);
 
-        AnalysisResult result = new AnalysisResult
+        AnalysisResult result = new()
         {
             RootException = FindRootException(exceptionInfo),
             ExceptionChain = BuildExceptionChain(exceptionInfo)
@@ -51,7 +53,7 @@ public class ExceptionAnalyzer
         return Analyze(exceptionText);
     }
 
-    private ExceptionInfo FindRootException(ExceptionInfo exception)
+    private static ExceptionInfo FindRootException(ExceptionInfo exception)
     {
         ExceptionInfo current = exception;
         while (current.InnerException != null)
@@ -61,9 +63,9 @@ public class ExceptionAnalyzer
         return current;
     }
 
-    private List<ExceptionInfo> BuildExceptionChain(ExceptionInfo exception)
+    private static List<ExceptionInfo> BuildExceptionChain(ExceptionInfo exception)
     {
-        List<ExceptionInfo> chain = new List<ExceptionInfo>();
+        List<ExceptionInfo> chain = [];
         ExceptionInfo? current = exception;
         
         while (current != null)
@@ -75,7 +77,7 @@ public class ExceptionAnalyzer
         return chain;
     }
 
-    private void CalculateStatistics(AnalysisResult result)
+    private static void CalculateStatistics(AnalysisResult result)
     {
         int totalFrames = 0;
         int visibleFrames = 0;
@@ -91,7 +93,7 @@ public class ExceptionAnalyzer
         result.FilteredFrames = totalFrames - visibleFrames;
     }
 
-    private void GenerateSummary(AnalysisResult result)
+    private static void GenerateSummary(AnalysisResult result)
     {
         if (result.RootException == null)
         {
@@ -102,7 +104,7 @@ public class ExceptionAnalyzer
         List<StackTraceFrame> highlightedFrames = result.RootException.GetHighlightedFrames();
         string summary = $"{result.RootException.ExceptionType}: {result.RootException.Message}";
         
-        if (highlightedFrames.Any())
+        if (highlightedFrames.Count != 0)
         {
             StackTraceFrame firstHighlighted = highlightedFrames.First();
             summary += $" at {firstHighlighted.GetFullMethodName()}";
@@ -111,16 +113,16 @@ public class ExceptionAnalyzer
         result.Summary = summary;
     }
 
-    private string ExtractExceptionFromLog(string logEntry)
+    private static string ExtractExceptionFromLog(string logEntry)
     {
-        string[] lines = logEntry.Split(new[] { '\r', '\n' }, StringSplitOptions.None);
-        List<string> exceptionLines = new List<string>();
+        string[] lines = logEntry.Split(LineSeparators, StringSplitOptions.None);
+        List<string> exceptionLines = [];
         bool inException = false;
 
         foreach (string line in lines)
         {
             // Check if this line starts the exception section
-            if (line.Contains("Exception:") || line.Trim().StartsWith("at "))
+            if (line.Contains("Exception:") || line.Trim().StartsWith("at ", StringComparison.Ordinal))
             {
                 inException = true;
             }
@@ -129,9 +131,9 @@ public class ExceptionAnalyzer
             {
                 // Strip "Exception: " prefix if it exists at the start
                 string processedLine = line;
-                if (line.Trim().StartsWith("Exception:"))
+                if (line.Trim().StartsWith("Exception:", StringComparison.Ordinal))
                 {
-                    int colonIndex = line.IndexOf("Exception:");
+                    int colonIndex = line.IndexOf("Exception:", StringComparison.Ordinal);
                     processedLine = line.Substring(colonIndex + "Exception:".Length).Trim();
                 }
                 

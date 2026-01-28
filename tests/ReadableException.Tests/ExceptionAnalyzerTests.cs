@@ -6,10 +6,10 @@ namespace ReadableException.Tests;
 [TestFixture]
 public class ExceptionAnalyzerTests
 {
-    [Test]
-    public void Analyze_ValidException_ReturnsAnalysisResult()
+[Test]
+    public void AnalyzeValidExceptionReturnsAnalysisResult()
     {
-        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        ExceptionAnalyzer analyzer = new();
         string exceptionText = @"System.InvalidOperationException: Test exception
    at MyApp.Service.ProcessData() in C:\Projects\Service.cs:line 42
    at System.Threading.Tasks.Task.Execute()";
@@ -22,24 +22,24 @@ public class ExceptionAnalyzerTests
         Assert.That(result.ExceptionChain.Count, Is.EqualTo(1));
     }
 
-    [Test]
-    public void Analyze_EmptyString_ReturnsNull()
+[Test]
+    public void AnalyzeEmptyStringReturnsNull()
     {
-        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        ExceptionAnalyzer analyzer = new();
 
         ReadableException.Models.AnalysisResult? result = analyzer.Analyze("");
 
         Assert.That(result, Is.Null);
     }
 
-    [Test]
-    public void Analyze_WithConfiguration_AppliesFilters()
+[Test]
+    public void AnalyzeWithConfigurationAppliesFilters()
     {
-        AnalyzerConfiguration config = new ConfigurationBuilder()
+AnalyzerConfiguration config = new ConfigurationBuilder()
             .FilterNamespace("System.")
             .HighlightNamespace("MyApp.")
             .Build();
-        ExceptionAnalyzer analyzer = new ExceptionAnalyzer(config);
+        ExceptionAnalyzer analyzer = new(config);
         
         string exceptionText = @"System.Exception: Test
    at System.Collections.List.Add()
@@ -51,10 +51,10 @@ public class ExceptionAnalyzerTests
         Assert.That(result!.FilteredFrames, Is.GreaterThan(0));
     }
 
-    [Test]
-    public void Analyze_CalculatesStatistics_Correctly()
+[Test]
+    public void AnalyzeCalculatesStatisticsCorrectly()
     {
-        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        ExceptionAnalyzer analyzer = new();
         string exceptionText = @"System.Exception: Test
    at MyApp.Service.Method1()
    at MyApp.Service.Method2()
@@ -67,10 +67,10 @@ public class ExceptionAnalyzerTests
         Assert.That(result.VisibleFrames, Is.LessThanOrEqualTo(result.TotalFrames));
     }
 
-    [Test]
-    public void Analyze_GeneratesSummary_Correctly()
+[Test]
+    public void AnalyzeGeneratesSummaryCorrectly()
     {
-        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        ExceptionAnalyzer analyzer = new();
         string exceptionText = @"System.InvalidOperationException: Operation failed
    at MyApp.Service.ProcessData()";
 
@@ -81,10 +81,10 @@ public class ExceptionAnalyzerTests
         Assert.That(result.Summary, Does.Contain("InvalidOperationException"));
     }
 
-    [Test]
-    public void ToFormattedString_ProducesReadableOutput()
+[Test]
+    public void ToFormattedStringProducesReadableOutput()
     {
-        ExceptionAnalyzer analyzer = new ExceptionAnalyzer();
+        ExceptionAnalyzer analyzer = new();
         string exceptionText = @"System.InvalidOperationException: Test exception
    at MyApp.Service.ProcessData()
    at MyApp.Controller.HandleRequest()";

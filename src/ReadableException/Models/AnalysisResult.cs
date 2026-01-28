@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace ReadableException.Models;
 
 public class AnalysisResult
@@ -11,30 +13,30 @@ public class AnalysisResult
 
     public string ToFormattedString()
     {
-        System.Text.StringBuilder sb = new System.Text.StringBuilder();
+        System.Text.StringBuilder sb = new();
         
         if (RootException != null)
         {
-            sb.AppendLine($"Root Cause: {RootException.ExceptionType}: {RootException.Message}");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"Root Cause: {RootException.ExceptionType}: {RootException.Message}");
             sb.AppendLine();
             
             List<StackTraceFrame> visibleFrames = RootException.GetVisibleFrames();
-            if (visibleFrames.Any())
+            if (visibleFrames.Count != 0)
             {
                 sb.AppendLine("Key Stack Frames:");
                 foreach (StackTraceFrame frame in visibleFrames)
                 {
                     string marker = frame.IsHighlighted ? " [!]" : "";
-                    sb.AppendLine($"  at {frame.GetFullMethodName()}{marker}");
+                    sb.AppendLine(CultureInfo.InvariantCulture, $"  at {frame.GetFullMethodName()}{marker}");
                     if (!string.IsNullOrEmpty(frame.FileName) && frame.LineNumber.HasValue)
                     {
-                        sb.AppendLine($"     in {frame.FileName}:line {frame.LineNumber}");
+                        sb.AppendLine(CultureInfo.InvariantCulture, $"     in {frame.FileName}:line {frame.LineNumber}");
                     }
                 }
             }
             
             sb.AppendLine();
-            sb.AppendLine($"Statistics: {VisibleFrames} visible / {TotalFrames} total frames ({FilteredFrames} filtered)");
+            sb.AppendLine(CultureInfo.InvariantCulture, $"Statistics: {VisibleFrames} visible / {TotalFrames} total frames ({FilteredFrames} filtered)");
         }
         
         return sb.ToString();
